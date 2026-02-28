@@ -1,0 +1,7 @@
+include LICENSE
+include Makefile
+include README.md
+recursive-include src *.h *.cpp
+recursive-include nnue_probe *.py
+include nnue_probe/libnnueprobe
+include nnue_probe/nn-*.nnue

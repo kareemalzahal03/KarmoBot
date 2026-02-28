@@ -1,0 +1,17 @@
+# Workflow:
+# 1. Build the Docker image using the provided Dockerfile.
+# 2. Run the container in detached mode, passing the environment variables from .env
+# docker compose up -d
+# 3. To stop and remove the container, use:
+# docker compose down
+
+services:
+  karmobot:
+    # Builds Lichess Bot
+    build:
+      context: .
+      dockerfile: lichess/Dockerfile
+    container_name: KarmoBot
+    env_file:
+      - lichess/.env # LICHESS_BOT_TOKEN
+    restart: unless-stopped
