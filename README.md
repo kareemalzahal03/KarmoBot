@@ -1,4 +1,9 @@
-# KarmoBot
+
+
+<div align="center">  <!-- https://www.svggenie.com/tools/font-to-svg -->
+  <img src=".github/images/karmo-bot-chango-regular.svg" alt="KARMO BOT">
+</div>
+<br>
 
 KarmoBot is a Python chess engine project focused on practical search performance, incremental state updates, and Lichess deployment.
 
