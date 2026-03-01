@@ -36,16 +36,17 @@ It combines:
 ## Requirements
 
 - Python `>= 3.10`
-- `g++` and `make` (for building `nnue-probe`)
-- Docker + Docker Compose (for Lichess deployment workflow)
+- See [nnue-probe requirements](packages/nnue-probe/README.md) for building the native NNUE probe library.
 
 ## Installation (Local Development)
 
-Install with editable mode from repo root:
+Within a Python virtual environment, install with editable mode from repo root:
 
 ```bash
 python -m pip install -e .
 ```
+
+This will install `karmobot` and required dependencies automatically, including `nnue-probe`.
 
 ## Running Tests
 

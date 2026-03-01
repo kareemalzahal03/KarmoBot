@@ -716,7 +716,7 @@ endif
 ### Section 4. Public targets
 ### ==========================================================================
 
-EXE = nnue_probe/libnnueprobe
+EXE = nnue_probe/libnnueprobe.so
 RM = rm -rf
 OBJ = src/misc.o src/nnue.o
 HPP = src/misc.h src/nnue.h
@@ -738,7 +738,6 @@ strip:
 ############## 
 
 $(EXE): net $(OBJ)
-	@mkdir -p $(dir $@)
 	$(CXX) -o $@ $(OBJ) $(LDFLAGS) -shared 
 
 %.o: %.cpp $(HPP)

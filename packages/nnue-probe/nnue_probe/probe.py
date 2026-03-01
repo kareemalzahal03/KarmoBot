@@ -18,7 +18,7 @@ def default_network_path() -> Path:
 
 def load_library() -> CDLL:
     package_dir = _package_dir()
-    candidate = package_dir / "libnnueprobe"
+    candidate = package_dir / "libnnueprobe.so"
     if candidate.exists():
         return CDLL(str(candidate))
     raise FileNotFoundError(f"Could not find NNUE shared library in {package_dir}.")

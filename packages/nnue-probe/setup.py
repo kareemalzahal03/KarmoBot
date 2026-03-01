@@ -38,7 +38,7 @@ class BuildNative(Command):
         subprocess.check_call(["make"], cwd=ROOT)
 
         # Ensure library exists
-        built_lib = PACKAGE_DIR / "libnnueprobe"
+        built_lib = PACKAGE_DIR / "libnnueprobe.so"
         if not built_lib.exists():
             raise RuntimeError(f"Expected native library at {built_lib}")
 
@@ -60,7 +60,7 @@ setup(
     description="NNUE probe library with Python ctypes wrapper",
     packages=["nnue_probe"],
     include_package_data=True,
-    package_data={"nnue_probe": ["libnnueprobe", "nn-*.nnue"]},
+    package_data={"nnue_probe": ["libnnueprobe.so", "nn-*.nnue"]},
     cmdclass={
         "build_native": BuildNative,
         "build_py": BuildPyWithNative,
