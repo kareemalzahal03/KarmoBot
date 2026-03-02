@@ -45,9 +45,13 @@ class KarmoBot(ExampleEngine):
         :return: The move to play.
         """
 
-        # Set Bot Board Position
-        self.karmobot.reset()
+        moves = []
         for move in board.move_stack:
+            moves.append(board.pop())
+
+        self.karmobot.set_fen(board.fen())
+
+        for move in reversed(moves):
             self.karmobot.push(move)
 
         # Get Move
