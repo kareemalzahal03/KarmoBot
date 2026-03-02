@@ -53,13 +53,17 @@ class History:
     - https://www.chessprogramming.org/History_Heuristic
     """
 
-    MAX_HISTORY = 200
+    MAX_HISTORY = 4194304
 
     def __init__(self):
+        self.clear()
+
+    def clear(self):
         # History array: [color][piecetype][square]
         self._array = [[[0 for _ in range(64)] for _ in range(6)] for _ in range(2)]
+        self._max_history = 0
 
-    def score(self, board: Board, move: Move) -> None:
+    def score(self, board: Board, move: Move) -> int:
         # Get historical score
         color = board.turn
         piece = board.piece_type_at(move.from_square)-1
@@ -71,20 +75,25 @@ class History:
         for color in range(2):
             for piece in range(6):
                 for square in range(64):
-                    self._array[color][piece][square] /= 8
+                    self._array[color][piece][square] //= 8
+        self._max_history //= 8
 
-    def update(self, board: Board, move: Move, depth: int, *, penalize = False) -> None:
+    def update(self, board: Board, move: Move, depth: int) -> None:
         # https://www.chessprogramming.org/History_Heuristic#Update
 
         color = board.turn
         piece = board.piece_type_at(move.from_square)-1
         square = move.to_square
 
-        bonus = ( depth * depth ) * ( -1 if penalize else 1 )
-        clampedbonus = min(self.MAX_HISTORY, max(-self.MAX_HISTORY, bonus))
+        bonus = min(400, depth * depth)
 
         self._array[color][piece][square] \
-            += clampedbonus - self._array[color][piece][square] * abs(clampedbonus) / self.MAX_HISTORY
+            += bonus - self._array[color][piece][square] * bonus / self.MAX_HISTORY
+        
+        self._max_history = max(self._max_history, self._array[color][piece][square])
+
+    def getHighestHistoryScore(self) -> int:
+        return self._max_history
     
 T = TypeVar('T')
 def peek_upto_two(it: Iterator[T]) -> tuple[int, Iterable[T]]:

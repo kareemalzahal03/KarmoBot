@@ -321,10 +321,10 @@ class EngineNNUE(TranspositionTable, EvaluateNNUE):
                 and bool(self.occupied ^ self.pawns ^ self.kings)
                 # Dont make consecutive null moves
                 and len(self.move_stack) > 0 and self.move_stack[-1] != Move.null()):
+            
             # Make a null move
             self.push(Move.null())
             
-
             # Allow Opponent to make a move
             r = 4
             null_depth = max(0, depth - r)
@@ -417,28 +417,20 @@ class EngineNNUE(TranspositionTable, EvaluateNNUE):
                     and not recapture_extended
                     and move_stage._is_futility_candidate()):
                 
-                # if move_stage == MoveStage.VERY_BAD_CAPTURE:
-                #     reduction = int(
-                #         .50 - .40*(isPV) + ( (1.35*log(depth)) + (.40*log(move_num)) )
-                #     )
+                if move_stage == MoveStage.VERY_BAD_CAPTURE:
+                    reduction = int(
+                        .50 - .40*(isPV) + ( (1.35*log(depth)) + (.40*log(move_num)) )
+                    )
+                elif move_stage == MoveStage.BAD_CAPTURE:
+                    reduction = int(
+                        -.85 + ( (1.35*log(depth)) + (.40*log(move_num)) )
+                    )
+                else:
+                    reduction = int(
+                        -1.85 + ( (.50*log(depth)) + (1.65*log(move_num)) )
+                    )
 
-                # elif move_stage == MoveStage.BAD_CAPTURE:
-                #     reduction = int(
-                #         -.85 + ( (1.35*log(depth)) + (.40*log(move_num)) )
-                #     )
-
-                # else:
-                #     reduction = int(
-                #         -1.85 + ( (.50*log(depth)) + (1.65*log(move_num)) )
-                #     )
-
-                r = 1
-                if depth >= 6 and move_num >= 10 and move_stage == MoveStage.QUIET_BAD_HISTORY:
-                    r = 2
-                elif move_stage in (MoveStage.QUIET_GOOD_HISTORY, MoveStage.BAD_CAPTURE):
-                    r = 1
-
-                reduction = min(r, 2, max(0, depth - 2))
+                reduction = max(0, min(4, reduction))
 
 
             ### GET SCORE OF MOVE
@@ -495,10 +487,6 @@ class EngineNNUE(TranspositionTable, EvaluateNNUE):
                     self.killers.update(move, ply)
 
                 break
-
-            # Quiet move did not cause cutoff -> bad history
-            if not self.is_capture(move):
-                self.history.update(self, move, depth, penalize=True)
 
         # Store score in transposition table
         self.store(depth, best_score, alpha0, beta, best_move)
@@ -714,7 +702,7 @@ class EngineNNUE(TranspositionTable, EvaluateNNUE):
 
     def quiet_score(self, move: Move):
         if move.promotion:
-            return self.history.MAX_HISTORY + move.promotion
+            return self.history.getHighestHistoryScore() + move.promotion
         return self.history.score(self, move)
 
     def ordered_legal_moves(self, ply: int = 0) -> Iterator[tuple[Move,MoveStage]]:
@@ -753,14 +741,16 @@ class EngineNNUE(TranspositionTable, EvaluateNNUE):
 
         # Quiets by history
         for quiet, score in quiets:
-            if score >= self.history.MAX_HISTORY // 4:
+            if score >= self.history.getHighestHistoryScore() // 4:
                 yield quiet, MoveStage.QUIET_GOOD_HISTORY
             else:
                 yield quiet, MoveStage.QUIET_BAD_HISTORY
 
         # Losing Captures
         for capture, see in captures:
-            if see < 0:
+            if see <= -250:
+                yield capture, MoveStage.VERY_BAD_CAPTURE
+            elif see < 0:
                 yield capture, MoveStage.BAD_CAPTURE
 
 
